@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
 //init all web routes
-    initWebRoutes(app);
+    initWebRoutes(app)
 
 let port = process.env.PORT || 8080;
 
