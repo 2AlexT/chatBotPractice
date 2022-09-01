@@ -64,7 +64,7 @@ function handleMessage(sender_psid, received_message){
     //check if the message contains text
     if(received_message.text){
         //create the payload for a basic message
-        respones = {
+        response = {
             "text": `Enviaste un mensaje: "${received_message.text}"Ahora enviame a post`
         }
     }
