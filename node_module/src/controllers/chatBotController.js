@@ -1,4 +1,4 @@
-
+const request = require('request');
 let postWebHook = (req,res) =>{
     let body = req.body;
 
@@ -6,14 +6,22 @@ let postWebHook = (req,res) =>{
     if (body.object === 'page'){
         //iterates over each entry - there may be multiple if batched
         body.entry.forEach(function(entry){
+            //get the body of the webhook event
+            let webhook_event = entry.messaging[0];
+            console.log(webhook_event);
 
-          //gets the body of the webhook event
-          let webhook_event = entry.messaging[0];
-          console.log(webhook_event);
+            //get the sender psid
+            let sender_psid = webhook_event.sender.id;
+            console.log('sender PSID:' + sender_psid);
 
-          //get the sender psid
-          let sender_psid = webhook_event.sender.id;
-          console.log('Sender PSID' + sender_psid);
+            //check if the event is a message or postback
+            //pass the event to apropiate handler
+            if(webhook_event.message){
+                handleMessage(sender_psid, webhook_event.message);
+            }else if(webhook_event.postback){
+                handlePostback(sender_psid, webhook_event.postback)
+            }
+
         });
         //return a 200 ok
 
@@ -52,7 +60,16 @@ let getWebHook =(req,res)=>{
 
 //handles messages events
 function handleMessage(sender_psid, received_message){
-
+    let response;
+    //check if the message contains text
+    if(received_message.text){
+        //create the payload for a basic message
+        respones = {
+            "text": `Enviaste un mensaje: "${received_message.text}"Ahora enviame a post`
+        }
+    }
+    //sends the response message
+    callSendAPI(sender_psid,response);
 }
 //hanldes messaging postabcks events
 function handlePostback(sender_psid, received_postback){
@@ -61,7 +78,27 @@ function handlePostback(sender_psid, received_postback){
 
 //sends responses messages via the send api
 function callSendAPI(sender_psid, response){
-
+    //construct the message body
+    let request_body={
+        "recipient":{
+            "id":sender_psid
+        },
+        "message":response
+    };
+    //send the HTTP request to the messenger platform
+    request({
+        "url":"https://graph.facebook.com/v6.0/me/messages",
+        "qs":{"access_token":process.env.FB_PAGE_TOKEN},
+        "method":"POST",
+        "json": request_body
+    },(err,res,body)=>{
+        if(!err){
+            console.log("message enviado");
+            console.log(`My mensaje ${response}`)
+        }else{
+            console.error("no se pudo conectar" + err);
+        }
+    })
 }
 
 module.exports={
