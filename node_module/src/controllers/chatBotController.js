@@ -65,7 +65,7 @@ function handleMessage(sender_psid, received_message){
     if(received_message.text){
         //create the payload for a basic message
         response = {
-            "text": `Enviaste un mensaje: "${received_message.text}"Ahora enviame a post`
+            "text": `Enviaste un mensaje : "${received_message.text}" Ahora enviame a post`
         }
     }
     //sends the response message
